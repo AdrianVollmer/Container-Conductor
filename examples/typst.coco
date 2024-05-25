@@ -1,0 +1,5 @@
+name: typst
+podman-compose:
+  services:
+    typst:
+      image: docker.io/123marvin123/typst

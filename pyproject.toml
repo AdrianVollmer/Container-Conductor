@@ -1,0 +1,89 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "container-conductor"
+dynamic = ["version"]
+description = 'Makes containers behave like CLI apps'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Adrian Vollmer", email = "computerfluesterer@protonmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = ["click", "podman-compose", "pyxdg", "pyyaml"]
+
+[project.urls]
+Documentation = "https://github.com/unknown/container-conductor#readme"
+Issues = "https://github.com/unknown/container-conductor/issues"
+Source = "https://github.com/unknown/container-conductor"
+
+[project.scripts]
+coco = "container_conductor.main:coco"
+cococtl = "container_conductor.main:cococtl"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "_version.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types]
+dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/container_conductor tests}"
+
+[tool.coverage.run]
+source_pkgs = ["container_conductor", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/container_conductor/__about__.py",
+]
+
+[tool.coverage.paths]
+container_conductor = ["src/container_conductor", "*/container-conductor/src/container_conductor"]
+tests = ["tests", "*/container-conductor/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]

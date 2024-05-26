@@ -10,7 +10,7 @@ docker-compose files. It reduces mental load when running containers by
 wrapping their functionality into a CLI tool with modern shell completion. No
 more looking up and remembering information about which volume goes where, what
 environment variable has which functionality, and so on. The configurations are
-easily shareable.
+easily shareable. Put the power of containers into hands of people who don't know what a container is.
 
 It is based on podman instead of Docker because podman's rootless containers
 are simpler to deal with. Podman-compose is based on Python, which I prefer,
@@ -58,6 +58,29 @@ eval "$(cococtl shell-config --shell bash)"
 # ~/.config/fish/completions/foo-bar.fish
 
 ```
+
+## Using and adding coco apps
+
+Container Conductor ("coco" for short) apps consist of single YAML files.
+
+They are located by default in `~/.local/share/coco/apps`, unless you changed your
+`XDG_DATA_HOME` variable. You can create or copy the files there (see
+`examples` for examples) or use `cococtl add [URL|PATH]` to add them.
+
+To use a coco app, run `coco <APP NAME>`. If that is too verbose for you, you can create a "smart link", which is a symlink to the `coco` executable where the name of the symlink corresponds to the name of the coco app.
+
+For example, if you have a coco app named `typst`, do this:
+
+```console
+ln -s $(which coco) ~/.local/bin/typst
+```
+
+Now you can call `typst` directly instead of `coco typst`. Alternatively, use
+the `cococtl symlink create` command, which will create a link in
+`~/.local/share/coco/symlinks`, which must be in your `$PATH`. If you added the
+line with `cococtl shell-config` like described above, your `$PATH` will be
+adjusted accordingly.
+
 
 ## License
 

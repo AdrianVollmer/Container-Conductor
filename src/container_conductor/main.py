@@ -12,11 +12,13 @@ def cococtl():
     # TODO:
     # * get
     # * update
-    # * list
+    # * ls
     # * remove
     # * shell-completion
     # * update-cache
-    # * create-link
+    # * symlink create
+    # * symlink delete
+    # * symlink ls
     pass
 
 

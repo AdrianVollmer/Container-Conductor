@@ -24,7 +24,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["click", "podman-compose", "pyxdg", "pyyaml"]
+dependencies = [
+    "click",
+    "podman-compose@git+https://github.com/containers/podman-compose.git#main",
+    "pyxdg",
+    "pyyaml",
+]
 
 [project.urls]
 Documentation = "https://github.com/unknown/container-conductor#readme"
@@ -34,6 +39,9 @@ Source = "https://github.com/unknown/container-conductor"
 [project.scripts]
 coco = "container_conductor.main:coco"
 cococtl = "container_conductor.main:cococtl"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.version]
 source = "vcs"

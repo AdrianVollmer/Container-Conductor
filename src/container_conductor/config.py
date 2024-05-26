@@ -24,3 +24,11 @@ def load_all_apps(*extra_file_paths):
     files.extend(extra_file_paths)
     result = [load_app(f) for f in files]
     return result
+
+
+def get_app_by_name(name, *extra_file_paths):
+    if name in APP_CACHE_BY_NAME:
+        return APP_CACHE_BY_NAME[name]
+
+    load_all_apps(*extra_file_paths)
+    return APP_CACHE_BY_NAME[name]

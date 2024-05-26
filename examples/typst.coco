@@ -11,7 +11,6 @@ cli:
             - args
           kwargs:
             nargs: -1
-      options: {}
     - name: watch
       help: "Watch a document"
       arguments:
@@ -19,9 +18,9 @@ cli:
             - file
 compose-file:
   services:
-    coco_typst:
+    typst:
+      command: sh -c "typst ${CLI_ARGS}"
       image: docker.io/123marvin123/typst
       init: true
       volumes:
         - ${CWD}:/root
-      command: typst ${CLI_ARGS}

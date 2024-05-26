@@ -1,7 +1,11 @@
+import sys
+import os
+from functools import update_wrapper
+
 import click
 
 from container_conductor.compose import run_podman_compose
-from container_conductor.config import load_all_apps
+from container_conductor.config import load_all_apps, get_app_by_name
 
 help_alias = dict(context_settings=dict(help_option_names=["-h", "--help"]))
 
@@ -41,7 +45,7 @@ def cli(ctx):
     run_podman_compose(ctx)
 
 
-def build_cli(parent_command, name, config):
+def build_root_cli(parent_command, name, config):
     @parent_command.group(name=name, help=config["help"], **help_alias)
     @click.pass_context
     def main_command(ctx):
@@ -51,11 +55,44 @@ def build_cli(parent_command, name, config):
         command = create_command(command_config)
         main_command.add_command(command)
         if command_config.get("commands"):
-            build_cli(main_command, command_config["name"], command_config)
+            build_root_cli(main_command, command_config["name"], command_config)
+
+
+def build_app_cli(name, config, parent_command=None):
+    for arg in config.get("arguments") or []:
+        update_wrapper(
+            parent_command or cli,
+            lambda: (parent_command or click).argument(
+                *arg.get("args", []), **arg.get("kwargs", {})
+            ),
+        )
+    for opt in config.get("options", []):
+        update_wrapper(
+            parent_command or cli,
+            lambda: (parent_command or click).option(
+                *opt.get("args", []), **opt.get("kwargs", {})
+            ),
+        )
+    for c in config.get("commands", []):
+
+        @ (parent_command or cli).group(name=c["name"], help=c["help"], **help_alias)
+        @click.pass_context
+        def command(ctx):
+            pass
+
+        build_app_cli(c["name"], c, command)
 
 
 def main():
-    apps = load_all_apps("examples/typst.coco")
-    for app in apps:
-        build_cli(cli, app["name"], app["cli"])
+    root_command = sys.argv[0]
+    if root_command == "coco" or root_command.endswith("/coco"):
+        # The program is called via "coco ..."
+        apps = load_all_apps("examples/typst.coco")
+        for app in apps:
+            build_root_cli(cli, app["name"], app["cli"])
+    else:
+        # The program is called via a *link to coco*
+        app = get_app_by_name(os.path.basename(root_command), "examples/typst.coco")
+        build_app_cli(app["name"], app["cli"], cli)
+
     cli()

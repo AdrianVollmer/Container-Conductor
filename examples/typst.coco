@@ -1,5 +1,27 @@
 name: typst
-podman-compose:
+cli:
+  help: "Typst: Compose papers faster"
+  arguments:
+  options: {}
+  commands:
+    - name: compile
+      help: "Compile a document"
+      arguments:
+        - args:
+            - args
+          kwargs:
+            nargs: -1
+      options: {}
+    - name: watch
+      help: "Watch a document"
+      arguments:
+        - args:
+            - file
+compose-file:
   services:
-    typst:
+    coco_typst:
       image: docker.io/123marvin123/typst
+      init: true
+      volumes:
+        - ${CWD}:/root
+      command: typst ${CLI_ARGS}

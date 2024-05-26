@@ -2,9 +2,8 @@ import click
 from container_conductor import click_aux
 
 
-@click_aux.from_config
-def coco(*args, **kwargs):
-    pass
+def coco():
+    click_aux.main()
 
 
 @click.group()
@@ -19,5 +18,5 @@ def cococtl():
     pass
 
 
-def __main__(*args, **kwargs):
-    cococtl(*args, **kwargs)
+def __main__():
+    cococtl()

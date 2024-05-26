@@ -26,7 +26,7 @@ def spawn_podman_process(cli, app_name):
 
     import yaml
     from xdg.BaseDirectory import save_cache_path
-    from podman_compose import podman_compose
+    from podman_compose import podman_compose  # type: ignore
 
     from container_conductor.config import get_app_by_name
 
@@ -37,7 +37,6 @@ def spawn_podman_process(cli, app_name):
         CWD=os.getcwd(),
     )
     env.update(extra_vars)
-    #  pyexec = sys.executable
 
     app = get_app_by_name(app_name)
 
@@ -49,17 +48,18 @@ def spawn_podman_process(cli, app_name):
         yaml.dump(app["compose-file"], fp)
         fp.close()
 
-        podman_logger = logging.getLogger("podman_compose")
-        #  podman_logger.setLevel("INFO")
-        podman_logger.handlers.clear()
+    podman_logger = logging.getLogger("podman_compose")
+    #  podman_logger.setLevel("INFO")
+    podman_logger.handlers.clear()
 
-        sys.argv = [
-            "podman_compose",
-            "--pod-args=--replace",
-            "-f",
-            fp.name,
-            "run",
-            "--rm",
-            f"{app_name}",
-        ]
-        asyncio.run(podman_compose.run())
+    sys.argv = [
+        "podman_compose",
+        "--pod-args=--replace",
+        "-f",
+        fp.name,
+        "run",
+        "--rm",
+        f"{app_name}",
+    ]
+
+    asyncio.run(podman_compose.run())

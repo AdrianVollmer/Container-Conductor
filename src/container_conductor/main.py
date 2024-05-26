@@ -1,8 +1,9 @@
 import click
-from container_conductor import click_aux
 
 
 def coco():
+    from container_conductor import click_aux
+
     click_aux.main()
 
 
@@ -13,6 +14,7 @@ def cococtl():
     # * update
     # * list
     # * remove
+    # * shell-completion
     # * update-cache
     # * create-link
     pass

@@ -46,6 +46,8 @@ def cli(ctx):
 
 
 def build_root_cli(parent_command, name, config):
+    """This constructs the click interface if `coco` is called"""
+
     @parent_command.group(name=name, help=config["help"], **help_alias)
     @click.pass_context
     def main_command(ctx):
@@ -59,6 +61,8 @@ def build_root_cli(parent_command, name, config):
 
 
 def build_app_cli(name, config, parent_command=None):
+    """This constructs the click interface if *a link to* `coco` is called"""
+
     for arg in config.get("arguments") or []:
         update_wrapper(
             parent_command or cli,

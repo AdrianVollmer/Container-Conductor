@@ -74,18 +74,18 @@ def build_root_cli(
 
     @parent_command.group(name=name, help=config.help, **help_alias)  # type: ignore
     @click.pass_context
-    def main_command(ctx):
+    def group(ctx):
         pass
 
     for command in config.commands:
         com = create_command(command)
-        main_command.add_command(com)
+        group.add_command(com)
         if command.commands:
-            build_root_cli(main_command, command.name, command)
+            build_root_cli(group, command.name, command)
 
 
 def build_app_cli(
-    parent_command: click.Command, name: str, config: CocoCli | CocoCliCommand
+    parent_command: click.Group, config: CocoCli | CocoCliCommand
 ) -> None:
     """This constructs the click interface if *a link to* `coco` is called"""
 
@@ -94,9 +94,17 @@ def build_app_cli(
         cli = add_options(config.options)(cli)
 
     for command in config.commands:
-        com = create_command(command)
-        parent_command.add_command(com)
-        build_app_cli(com, command.name, command)
+        if command.commands:
+
+            @parent_command.group(name=command.name, help=command.help)
+            @click.pass_context
+            def group(ctx):
+                pass
+
+            build_app_cli(group, command)
+        else:
+            com = create_command(command)
+            parent_command.add_command(com)
 
 
 def main():
@@ -111,6 +119,6 @@ def main():
         # The program is called via a *link to coco*
         root_command = os.path.basename(root_command)
         app = get_app_by_name(root_command, "examples/typst.coco")
-        build_app_cli(cli, app.name, app.cli)
+        build_app_cli(cli, app.cli)
 
     cli()

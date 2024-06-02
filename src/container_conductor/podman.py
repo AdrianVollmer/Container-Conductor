@@ -14,7 +14,7 @@ from container_conductor.config import get_app_by_name, CocoApp
 logger = logging.getLogger(__name__)
 
 
-def spawn_podman_process(cli: str, app_name: str) -> None:
+def spawn_podman_process(cli: list[str], app_name: str) -> None:
     cmdline = " ".join(map(shlex.quote, cli))
     env = os.environ
     extra_vars = dict(

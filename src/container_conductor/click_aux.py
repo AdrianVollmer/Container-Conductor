@@ -1,6 +1,5 @@
 import sys
 import os
-from functools import update_wrapper
 
 import click
 
@@ -56,7 +55,7 @@ def cli(ctx, *args, **kwargs):
 
     # This is not imported earlier because we want to save startup time when
     # only help is called
-    from container_conductor.compose import spawn_podman_process
+    from container_conductor.podman import spawn_podman_process
 
     spawn_podman_process(cli_args, app_name)
 
@@ -76,17 +75,17 @@ def build_root_cli(parent_command, name, config):
             build_root_cli(main_command, command_config["name"], command_config)
 
 
-def build_app_cli(parent_command, name, config, root=True):
+def build_app_cli(parent_command, name, config):
     """This constructs the click interface if *a link to* `coco` is called"""
 
-    if root:
-        global cli
+    global cli
+    if parent_command == cli:
         cli = add_options(config.get("options", []))(cli)
 
     for command_config in config.get("commands", []):
         command = create_command(command_config)
         parent_command.add_command(command)
-        build_app_cli(command, command_config["name"], command_config, root=False)
+        build_app_cli(command, command_config["name"], command_config)
 
 
 def main():

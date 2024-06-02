@@ -9,12 +9,12 @@ import yaml
 from xdg.BaseDirectory import save_cache_path
 from podman_compose import podman_compose  # type: ignore
 
-from container_conductor.config import get_app_by_name
+from container_conductor.config import get_app_by_name, CocoApp
 
 logger = logging.getLogger(__name__)
 
 
-def spawn_podman_process(cli, app_name):
+def spawn_podman_process(cli: str, app_name: str) -> None:
     cmdline = " ".join(map(shlex.quote, cli))
     env = os.environ
     extra_vars = dict(
@@ -24,27 +24,27 @@ def spawn_podman_process(cli, app_name):
     env.update(extra_vars)
     app = get_app_by_name(app_name)
 
-    if "compose-file" in app:
+    if app.compose_file:
         run_podman_compose(app)
-    elif "podman-cmd" in app:
+    elif app.podman_cmd:
         run_podman_run(app)
 
 
-def run_podman_run(app):
-    cmd = app["podman-cmd"].replace("\\\n", "")
+def run_podman_run(app: CocoApp) -> None:
+    assert isinstance(app.podman_cmd, str)
+    cmd = app.podman_cmd.replace("\\\n", "")
     cmd = cmd.format(**os.environ)
-    cmd = shlex.split(cmd)
-    subprocess.run(["podman"] + cmd)
+    arg_list = shlex.split(cmd)
+    subprocess.run(["podman"] + arg_list)
 
 
-def run_podman_compose(app):
-
-    pod_path = os.path.join(save_cache_path("coco"), app["name"])
+def run_podman_compose(app: CocoApp) -> None:
+    pod_path = os.path.join(save_cache_path("coco"), app.name)
     os.makedirs(pod_path, exist_ok=True)
     compose_file_path = os.path.join(pod_path, "compose.yml")
 
     with open(compose_file_path, "w") as fp:
-        yaml.dump(app["compose-file"], fp)
+        yaml.dump(app.compose_file, fp)
         fp.close()
 
     podman_logger = logging.getLogger("podman_compose")
@@ -58,7 +58,7 @@ def run_podman_compose(app):
         fp.name,
         "run",
         "--rm",
-        f"{app['name']}",
+        f"{app.name}",
     ]
 
     asyncio.run(podman_compose.run())

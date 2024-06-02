@@ -5,14 +5,14 @@ cli:
     - name: compile
       help: "Compile a document"
       arguments:
-        - args:
+        - click_args:
             - args
-          kwargs:
+          click_kwargs:
             nargs: -1
     - name: watch
       help: "Watch a document"
       arguments:
-        - args:
+        - click_args:
             - file
 podman-cmd: |
   run --rm \

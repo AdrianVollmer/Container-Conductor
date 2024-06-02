@@ -1,8 +1,6 @@
 name: typst
 cli:
   help: "Typst: Compose papers faster"
-  arguments:
-  options: {}
   commands:
     - name: compile
       help: "Compile a document"
@@ -16,11 +14,16 @@ cli:
       arguments:
         - args:
             - file
-compose-file:
-  services:
-    typst:
-      command: sh -c "typst ${CLI_ARGS}"
-      image: docker.io/123marvin123/typst
-      init: true
-      volumes:
-        - ${CWD}:/root
+podman-cmd: |
+  run --rm \
+    --volume {CWD}:/root \
+    docker.io/123marvin123/typst \
+    typst {CLI_ARGS}
+#  compose-file:
+#    services:
+#      typst:
+#        command: sh -c "typst ${CLI_ARGS}"
+#        image: docker.io/123marvin123/typst
+#        init: true
+#        volumes:
+#          - ${CWD}:/root

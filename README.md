@@ -40,7 +40,7 @@ pipx ensurepath
 pipx install container-conductor
 ```
 
-Note that you need to install podman first using your system's package manager. For Debian/Ubuntu/Kali:
+Note that you need to install podman and pipx first using your system's package manager. For Debian/Ubuntu/Kali:
 
 ```console
 apt install podman pipx

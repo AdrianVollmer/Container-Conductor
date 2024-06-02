@@ -1,35 +1,20 @@
-import sys
 import os
+import shlex
+import subprocess
+import sys
+import logging
+import asyncio
 
+import yaml
+from xdg.BaseDirectory import save_cache_path
+from podman_compose import podman_compose  # type: ignore
 
-def run_podman_compose(ctx):
-    cli = sys.argv
+from container_conductor.config import get_app_by_name
 
-    # Check if help was passed
-    if "-h" in cli or "--help" in cli:
-        return
-
-    # remove leading arguments
-    if cli[0] == "coco" or cli[0].endswith("/coco"):
-        cli.pop(0)
-
-    # remove app name
-    app_name = os.path.basename(cli.pop(0))
-
-    spawn_podman_process(cli, app_name)
+logger = logging.getLogger(__name__)
 
 
 def spawn_podman_process(cli, app_name):
-    import shlex
-    import logging
-    import asyncio
-
-    import yaml
-    from xdg.BaseDirectory import save_cache_path
-    from podman_compose import podman_compose  # type: ignore
-
-    from container_conductor.config import get_app_by_name
-
     cmdline = " ".join(map(shlex.quote, cli))
     env = os.environ
     extra_vars = dict(
@@ -37,10 +22,24 @@ def spawn_podman_process(cli, app_name):
         CWD=os.getcwd(),
     )
     env.update(extra_vars)
-
     app = get_app_by_name(app_name)
 
-    pod_path = os.path.join(save_cache_path("coco"), app_name)
+    if "compose-file" in app:
+        run_podman_compose(app)
+    elif "podman-cmd" in app:
+        run_podman_run(app)
+
+
+def run_podman_run(app):
+    cmd = app["podman-cmd"].replace("\\\n", "")
+    cmd = cmd.format(**os.environ)
+    cmd = shlex.split(cmd)
+    subprocess.run(["podman"] + cmd)
+
+
+def run_podman_compose(app):
+
+    pod_path = os.path.join(save_cache_path("coco"), app["name"])
     os.makedirs(pod_path, exist_ok=True)
     compose_file_path = os.path.join(pod_path, "compose.yml")
 
@@ -59,7 +58,7 @@ def spawn_podman_process(cli, app_name):
         fp.name,
         "run",
         "--rm",
-        f"{app_name}",
+        f"{app['name']}",
     ]
 
     asyncio.run(podman_compose.run())

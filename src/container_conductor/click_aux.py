@@ -4,7 +4,6 @@ from functools import update_wrapper
 
 import click
 
-from container_conductor.compose import run_podman_compose
 from container_conductor.config import load_all_apps, get_app_by_name
 
 help_alias = dict(context_settings=dict(help_option_names=["-h", "--help"]))
@@ -41,8 +40,25 @@ def add_options(options):
 
 @click.group(**help_alias)  # type: ignore
 @click.pass_context
-def cli(ctx):
-    run_podman_compose(ctx)
+def cli(ctx, *args, **kwargs):
+    cli_args = sys.argv
+
+    # Check if help was passed
+    if "-h" in cli_args or "--help" in cli_args:
+        return
+
+    # remove leading arguments
+    if cli_args[0] == "coco" or cli_args[0].endswith("/coco"):
+        cli_args.pop(0)
+
+    # remove app name
+    app_name = os.path.basename(cli_args.pop(0))
+
+    # This is not imported earlier because we want to save startup time when
+    # only help is called
+    from container_conductor.compose import spawn_podman_process
+
+    spawn_podman_process(cli_args, app_name)
 
 
 def build_root_cli(parent_command, name, config):
@@ -60,35 +76,22 @@ def build_root_cli(parent_command, name, config):
             build_root_cli(main_command, command_config["name"], command_config)
 
 
-def build_app_cli(name, config, parent_command=None):
+def build_app_cli(parent_command, name, config, root=True):
     """This constructs the click interface if *a link to* `coco` is called"""
 
-    for arg in config.get("arguments") or []:
-        update_wrapper(
-            parent_command or cli,
-            lambda: (parent_command or click).argument(
-                *arg.get("args", []), **arg.get("kwargs", {})
-            ),
-        )
-    for opt in config.get("options", []):
-        update_wrapper(
-            parent_command or cli,
-            lambda: (parent_command or click).option(
-                *opt.get("args", []), **opt.get("kwargs", {})
-            ),
-        )
-    for c in config.get("commands", []):
+    if root:
+        global cli
+        cli = add_options(config.get("options", []))(cli)
 
-        @ (parent_command or cli).group(name=c["name"], help=c["help"], **help_alias)
-        @click.pass_context
-        def command(ctx):
-            pass
-
-        build_app_cli(c["name"], c, command)
+    for command_config in config.get("commands", []):
+        command = create_command(command_config)
+        parent_command.add_command(command)
+        build_app_cli(command, command_config["name"], command_config, root=False)
 
 
 def main():
     root_command = sys.argv[0]
+
     if root_command == "coco" or root_command.endswith("/coco"):
         # The program is called via "coco ..."
         apps = load_all_apps("examples/typst.coco")
@@ -96,7 +99,8 @@ def main():
             build_root_cli(cli, app["name"], app["cli"])
     else:
         # The program is called via a *link to coco*
-        app = get_app_by_name(os.path.basename(root_command), "examples/typst.coco")
-        build_app_cli(app["name"], app["cli"], cli)
+        root_command = os.path.basename(root_command)
+        app = get_app_by_name(root_command, "examples/typst.coco")
+        build_app_cli(cli, app["name"], app["cli"])
 
     cli()

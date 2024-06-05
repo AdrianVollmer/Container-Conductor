@@ -1,3 +1,5 @@
+**Work in progress. Don't use.**
+
 # Container-Conductor
 
 [![PyPI - Version](https://img.shields.io/pypi/v/container-conductor.svg)](https://pypi.org/project/container-conductor)
@@ -16,7 +18,7 @@ It is based on podman instead of Docker because podman's rootless containers
 are simpler to deal with. Podman-compose is based on Python, which I prefer,
 and more targeted towards this scenario.
 
-Container Conductor is considered *MeWare*: fills a need I have and works for
+Container Conductor is considered **MeWare**: fills a need I have and works for
 me. Published in the hopes it can be useful for you, but don't expect perfect
 polishing. Issues and PRs welcome.
 

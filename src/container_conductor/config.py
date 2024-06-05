@@ -1,11 +1,12 @@
-from xdg.BaseDirectory import save_data_path
 import os
 import glob
-import yaml
 import logging
 from dataclasses import dataclass, field
 from typing import Optional, Any
 from pathlib import Path
+
+from xdg.BaseDirectory import save_data_path
+import yaml
 
 logger = logging.getLogger(__name__)
 

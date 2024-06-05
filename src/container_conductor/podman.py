@@ -9,7 +9,7 @@ import yaml
 from xdg.BaseDirectory import save_cache_path
 from podman_compose import podman_compose  # type: ignore
 
-from container_conductor.config import get_app_by_name, CocoApp
+from container_conductor.config import get_app_by_name, CocoApp, PodmanRun
 
 logger = logging.getLogger(__name__)
 
@@ -26,16 +26,31 @@ def spawn_podman_process(cli: list[str], app_name: str) -> None:
 
     if app.compose_file:
         run_podman_compose(app)
-    elif app.podman_cmd:
+    elif app.podman_run:
         run_podman_run(app)
 
 
 def run_podman_run(app: CocoApp) -> None:
-    assert isinstance(app.podman_cmd, str)
-    cmd = app.podman_cmd.replace("\\\n", "")
-    cmd = cmd.format(**os.environ)
-    arg_list = shlex.split(cmd)
-    subprocess.run(["podman"] + arg_list)
+    assert isinstance(app.podman_run, PodmanRun)
+
+    cmd = ["podman", "run"]
+
+    if app.podman_run.rm:
+        cmd += ["--rm"]
+
+    for v in app.podman_run.volumes:
+        cmd += ["--volume", v]
+
+    cmd += [app.podman_run.image]
+
+    for i, _ in enumerate(cmd):
+        cmd[i] = cmd[i].format(**os.environ)
+
+    expanded_args = app.podman_run.args.format(**os.environ)
+    cmd.extend(shlex.split(expanded_args))
+
+    logger.debug(f"Running: {cmd}")
+    subprocess.run(cmd)
 
 
 def run_podman_compose(app: CocoApp) -> None:

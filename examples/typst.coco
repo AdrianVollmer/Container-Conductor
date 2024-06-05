@@ -14,11 +14,11 @@ cli:
       arguments:
         - click_args:
             - file
-podman-cmd: |
-  run --rm \
-    --volume {CWD}:/root \
-    docker.io/123marvin123/typst \
-    typst {CLI_ARGS}
+podman-run:
+  image: docker.io/123marvin123/typst
+  volumes:
+    - "{CWD}:/root"
+  args: typst {CLI_ARGS}
 #  compose-file:
 #    services:
 #      typst:

@@ -11,6 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class PodmanRun:
+    image: str
+    args: str = ""
+    volumes: list[str] = field(default_factory=lambda: [])
+    rm: bool = True
+
+
+@dataclass
 class CocoCliOption:
     click_args: Optional[list[str]] = field(default_factory=lambda: [])
     click_kwargs: Optional[dict[str, Any]] = field(default_factory=lambda: {})
@@ -56,17 +64,25 @@ class CocoApp:
     name: str
     cli: CocoCli
     compose_file: Optional[str] = None
-    podman_cmd: Optional[str] = None
+    podman_run: Optional[PodmanRun] = None
 
     def __post_init__(self):
         self.cli = CocoCli(**self.cli)
+
+        if self.podman_run and self.podman_compose:
+            raise RuntimeError(
+                "App must contain exactly one of podman-run and podman-compose"
+            )
+
+        if self.podman_run:
+            self.podman_run = PodmanRun(**self.podman_run)
 
 
 APP_CACHE_BY_NAME: dict[str, CocoApp] = {}
 APP_CACHE_BY_PATH: dict[str, CocoApp] = {}
 
 key_map = {
-    "podman-cmd": "podman_cmd",
+    "podman-run": "podman_run",
     "compose-file": "compose_file",
 }
 

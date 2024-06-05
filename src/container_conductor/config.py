@@ -72,9 +72,7 @@ class CocoApp:
         self.cli = CocoCli(**self.cli)
 
         if self.podman_run and self.podman_compose:
-            raise RuntimeError(
-                "App must contain exactly one of podman-run and podman-compose"
-            )
+            raise RuntimeError("App must contain exactly one of podman-run and podman-compose")
 
         if self.podman_run:
             self.podman_run = PodmanRun(**self.podman_run)

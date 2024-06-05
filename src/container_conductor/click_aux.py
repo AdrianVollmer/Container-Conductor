@@ -67,9 +67,7 @@ def cli(ctx, *args, **kwargs) -> None:
     spawn_podman_process(cli_args, app_name)
 
 
-def build_root_cli(
-    parent_command: click.Command, name: str, config: CocoCli | CocoCliCommand
-) -> None:
+def build_root_cli(parent_command: click.Command, name: str, config: CocoCli | CocoCliCommand) -> None:
     """This constructs the click interface if `coco` is called"""
 
     @parent_command.group(name=name, help=config.help, **help_alias)  # type: ignore
@@ -84,9 +82,7 @@ def build_root_cli(
             build_root_cli(group, command.name, command)
 
 
-def build_app_cli(
-    parent_command: click.Group, config: CocoCli | CocoCliCommand
-) -> None:
+def build_app_cli(parent_command: click.Group, config: CocoCli | CocoCliCommand) -> None:
     """This constructs the click interface if *a link to* `coco` is called"""
 
     global cli

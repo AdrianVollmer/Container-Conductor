@@ -51,6 +51,7 @@ class CocoCliCommand:
 class CocoCli:
     help: str
     commands: list[CocoCliCommand] = field(default_factory=lambda: [])
+    arguments: list[CocoCliArgument] = field(default_factory=lambda: [])
     options: list[CocoCliOption] = field(default_factory=lambda: [])
 
     def __post_init__(self):

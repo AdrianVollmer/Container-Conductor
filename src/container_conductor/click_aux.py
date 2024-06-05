@@ -1,16 +1,16 @@
-import sys
 import os
+import sys
 from typing import Callable
 
 import click
 
 from container_conductor.config import (
-    load_all_apps,
-    get_app_by_name,
     CocoCli,
-    CocoCliOption,
     CocoCliArgument,
     CocoCliCommand,
+    CocoCliOption,
+    get_app_by_name,
+    load_all_apps,
 )
 
 help_alias = dict(context_settings=dict(help_option_names=["-h", "--help"]))

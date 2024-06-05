@@ -1,12 +1,12 @@
-import os
 import glob
 import logging
+import os
 from dataclasses import dataclass, field
-from typing import Optional, Any
 from pathlib import Path
+from typing import Any, Optional
 
-from xdg.BaseDirectory import save_data_path
 import yaml
+from xdg.BaseDirectory import save_data_path
 
 logger = logging.getLogger(__name__)
 
@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 class PodmanRun:
     image: str
     args: str = ""
-    volumes: list[str] = field(default_factory=lambda: [])
+    volumes: list[str] = field(default_factory=list)
     rm: bool = True
 
 
 @dataclass
 class CocoCliOption:
-    click_args: Optional[list[str]] = field(default_factory=lambda: [])
-    click_kwargs: Optional[dict[str, Any]] = field(default_factory=lambda: {})
+    click_args: Optional[list[str]] = field(default_factory=list)
+    click_kwargs: Optional[dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -34,9 +34,9 @@ class CocoCliArgument(CocoCliOption):
 class CocoCliCommand:
     name: str
     help: str
-    arguments: list[CocoCliArgument] = field(default_factory=lambda: [])
-    options: list[CocoCliOption] = field(default_factory=lambda: [])
-    commands: list["CocoCliCommand"] = field(default_factory=lambda: [])
+    arguments: list[CocoCliArgument] = field(default_factory=list)
+    options: list[CocoCliOption] = field(default_factory=list)
+    commands: list["CocoCliCommand"] = field(default_factory=list)
 
     def __post_init__(self):
         if self.arguments:
@@ -50,9 +50,9 @@ class CocoCliCommand:
 @dataclass
 class CocoCli:
     help: str
-    commands: list[CocoCliCommand] = field(default_factory=lambda: [])
-    arguments: list[CocoCliArgument] = field(default_factory=lambda: [])
-    options: list[CocoCliOption] = field(default_factory=lambda: [])
+    commands: list[CocoCliCommand] = field(default_factory=list)
+    arguments: list[CocoCliArgument] = field(default_factory=list)
+    options: list[CocoCliOption] = field(default_factory=list)
 
     def __post_init__(self):
         if self.commands:

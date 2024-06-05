@@ -1,15 +1,15 @@
+import asyncio
+import logging
 import os
 import shlex
 import subprocess
 import sys
-import logging
-import asyncio
 
 import yaml
-from xdg.BaseDirectory import save_cache_path
 from podman_compose import podman_compose  # type: ignore
+from xdg.BaseDirectory import save_cache_path
 
-from container_conductor.config import get_app_by_name, CocoApp, PodmanRun
+from container_conductor.config import CocoApp, PodmanRun, get_app_by_name
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ def run_podman_run(app: CocoApp) -> None:
     cmd.extend(shlex.split(expanded_args))
 
     logger.debug(f"Running: {cmd}")
-    subprocess.run(cmd)
+    subprocess.run(cmd, check=False)
 
 
 def run_podman_compose(app: CocoApp) -> None:

@@ -98,7 +98,14 @@ def load_all_apps(*extra_file_paths: list[Path | str]) -> list[CocoApp]:
     data_dir = save_data_path("coco")
     files: list[str] = glob.glob(os.path.join(data_dir, "*.coco"))
     files.extend(map(str, extra_file_paths))
-    result = [load_app(f) for f in files]
+    result = []
+
+    for f in files:
+        try:
+            result += [load_app(f)]
+        except Exception as e:
+            logger.error(f"Error while parsing file '{f}': {e}")
+
     return result
 
 
